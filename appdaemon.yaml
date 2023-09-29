@@ -1,0 +1,16 @@
+appdaemon:
+  time_zone: MST
+  latitude: 45.664130
+  longitude: -111.128660
+  elevation: 1467
+  plugins:
+    HASS:
+      type: hass
+      ha_url: http://192.168.0.159:8123
+      token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI3MWEwMmY1ZmZiZDE0OTg0YTJjNjk5ZGNkMjcwODg3ZCIsImlhdCI6MTY5NDIxMjc2NSwiZXhwIjoyMDA5NTcyNzY1fQ.OAGZfnggTLsb4-WgVE95i55kZVLJAlqYz3k7vhwRpL0
+
+http:
+  url: http://hubble:5050
+
+hadashboard:
+  dashboard_dir: /dashboards

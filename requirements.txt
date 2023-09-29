@@ -1,0 +1,5 @@
+pip>=23.2.1
+RPi.GPIO
+cython
+yfinance
+neopolitan>=0.1.35

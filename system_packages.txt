@@ -1,0 +1,1 @@
+python3-dev gcc make musl musl-dev libc-dev linux-tools linux-headers libxml2 libxslt libxml2-dev libxslt-dev cmake g++ meson gfortran py3-numpy python3 libffi-dev openssl-dev libjpeg-turbo-dev zlib-dev py3-pandas build-base py3-lxml

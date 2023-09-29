@@ -1,0 +1,1 @@
+docker run --name=appdaemon -d -p 5050:5050 --restart=unless-stopped -e HA_URL=secrets.ha_url -e TOKEN=secrets.token -e DASH_URL="http://$HOSTNAME:5050" -v secrets.appdaemon_dir --device /dev/gpiomem --device /dev/spidev0.0 acockburn/appdaemon:latest
