@@ -2,3 +2,7 @@
 neop:
   module: neopapp
   class: Neopolitan
+
+snow_reports:
+  module: snowreport
+  class: SnowReporter

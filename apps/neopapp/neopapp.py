@@ -1,3 +1,4 @@
+# pylint: disable=import-error
 import hassapi as hass
 import neopolitan.nonblocking as nb
 from stockticker import default_tickers, snp_500, nasdaq_100
