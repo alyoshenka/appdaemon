@@ -3,7 +3,16 @@
 # pylint: disable=import-error
 import hassapi as hass
 
-from snowdata import aggregate_station_data, passes_snow_threshold, get_snowfall_24, get_swe_24, STATIONS
+from snowdata import \
+    aggregate_station_data, \
+    passes_snow_threshold, \
+    get_snowfall_24, \
+    get_swe_24, \
+    get_air_temp, \
+    get_elevation, \
+    get_swe_72, \
+    get_snowfall_72, \
+    STATIONS
 
 NOTIFY_ME = 'notify/mobile_app_pixel_3a'
 SNOTEL1 = 'https://wcc.sc.egov.usda.gov/reportGenerator/view/customSingleStationReport/hourly/start_of_period/'
@@ -27,7 +36,7 @@ class SnowReporter(hass.Hass):
     def terminate(self):
         self.log('Goodbye from the SnowReporter')
         for station in STATIONS:
-            self.set_state(entity_id='sensor.station_'+str(station), state='Unknown', attributes={"delta snow": -1, "delta swe": -1})
+            self.set_state(entity_id='sensor.station_'+str(station), state='Unknown', attributes={"delta snow": -1, "delta swe": -1, "air temp": -1})
 
     def send_phone_notification(self, event_name, data, kwargs):
         self.log('Button pressed, sending phone notification')
@@ -40,7 +49,8 @@ class SnowReporter(hass.Hass):
     def notify_phone_of_exciting_snow_report(self, report):
         """Notify that snow total has exceeded threshold, and link to snotel site"""
         link = SNOTEL1 + report['station_information']['triplet'] + SNOTEL2
-        self.call_service(NOTIFY_ME, message='IT SNOWED', data={"clickAction": link, "notification_icon": "mdi:exit-run"})
+        station = report['station_information']['name']
+        self.call_service(NOTIFY_ME, message=station + ' has new snow', data={"clickAction": link, "notification_icon": "mdi:exit-run"})
     
     def phone_action(self, event_name, data, kwargs):
         self.log('Phone action taken')
@@ -57,8 +67,13 @@ class SnowReporter(hass.Hass):
             station_id = station['station_information']['triplet'][0:3]
             entity_id = "sensor.station_" + station_id
             self.log('got data for: ' + str(station_id))
-            snow = get_snowfall_24(station)
-            swe = get_swe_24(station)
+            snow24 = get_snowfall_24(station)
+            swe24 = get_swe_24(station)
+            snow72 = get_snowfall_72(station)
+            swe72 = get_swe_72(station)
+            temp = get_air_temp(station)
+            elev = get_elevation(station)
 
-            self.set_state(entity_id=entity_id, state=station_name, attributes={"delta snow": snow, "delta swe": swe})
+
+            self.set_state(entity_id=entity_id, state=station_name, attributes={"24 snow": snow24, "24 swe": swe24, "air temp": temp, "elevation": elev, "72 snow": snow72, "72 swe": swe72})
         self.log('Done')

@@ -31,6 +31,8 @@ TEMPERATURE = 'Observed Air Temperature (degrees farenheit)'
 
 TIMEOUT = 2
 
+NO_VALUE = -1000
+
 # --- Useful Functions ---
 
 def get_sntl_data(station_id):
@@ -114,7 +116,7 @@ def get_snowfall_24(station):
         return float(station['data'][2][DELTA_SNOW])
     except Exception as err:
         print('unable to get 24hr snowfall:', err)
-        return -1
+        return NO_VALUE
     
 def get_snowfall_48(station):
     """Get 48 hr snowfall from data"""
@@ -123,7 +125,7 @@ def get_snowfall_48(station):
         return float(station['data'][2][DELTA_SNOW]) + float(station['data'][1][DELTA_SNOW])
     except Exception as err:
         print('unable to get 24hr snowfall:', err)
-        return -1
+        return NO_VALUE
     
 def get_snowfall_72(station):
     """Get 72 hr snowfall from data"""
@@ -131,8 +133,8 @@ def get_snowfall_72(station):
         assert len(station['data']) == DAYS+1
         return float(station['data'][2][DELTA_SNOW]) + float(station['data'][1][DELTA_SNOW]) + float(station['data'][0][DELTA_SNOW])
     except Exception as err:
-        print('unable to get 24hr snowfall:', err)
-        return -1
+        print('unable to get 72hr snowfall:', err)
+        return NO_VALUE
 
 def get_swe_24(station):
     """Get 24 hr snowfall from day"""
@@ -141,7 +143,35 @@ def get_swe_24(station):
         return station['data'][2][DELTA_SWE]
     except Exception as err:
         print('unable to get 24hr swe:', err)
-        return -1
+        return NO_VALUE
+
+def get_swe_72(station):
+    """Get 72 hr swe from data"""
+    try:
+        assert len(station['data']) == DAYS+1
+        return float(station['data'][2][DELTA_SWE]) + \
+                float(station['data'][1][DELTA_SWE]) + \
+                float(station['data'][0][DELTA_SWE])
+    except Exception as err:
+        print('unable to get 72hr swe')
+        return NO_VALUE
+
+def get_air_temp(station):
+    """Get the observed air temperature"""
+    try:
+        assert len(station['data']) == DAYS+1
+        return station['data'][2][TEMPERATURE]
+    except Exception as err:
+        print('unable to get air temperature:', err)
+        return NO_VALUE
+    
+def get_elevation(station):
+    """Get the elevation"""
+    try:
+        return station['station_information']['elevation']
+    except Exception as err:
+        print('unable to get air temperature:', err)
+        return NO_VALUE
 
 def top_x_snowfall(data, x, days=0):
     amount = 0
@@ -166,6 +196,8 @@ def top_x_snowfall(data, x, days=0):
 data = aggregate_station_data()
 pretty_print(data[0])
 print(get_snowfall_24(data[0]))
+print(get_air_temp(data[0]))
+
 
 # top_x_snowfall(data, 3)
 print(len(passes_snow_threshold(data, past_24=0.1, past_72=0.1)))
