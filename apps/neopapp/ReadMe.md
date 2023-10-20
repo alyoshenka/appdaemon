@@ -10,3 +10,7 @@ The goal of this application is to provide stock ticker functionality via interf
 - Select which stock option will be displayed with the schedule
 - Add to a list of custom stocks to display
 - Remove from said list
+
+#### Other Goals (not related to this code but still listed here)
+- easy setup and initial configuration
+- housed in a nice box
