@@ -1,4 +1,12 @@
 # pylint: disable=import-error
+# pylint: disable=broad-exception-caught
+# pylint: disable=unused-argument
+
+# these should be dealt with
+# pylint: disable=missing-method-docstring
+# pylint: disable=bad-indentation
+# pylint: disable=missing-function-docstring
+
 import hassapi as hass
 import neopolitan.nonblocking as nb
 from stockticker import \
@@ -7,7 +15,6 @@ from stockticker import \
   add_ticker, remove_ticker
 
 class Neopolitan(hass.Hass):
-  
   def initialize(self):
 
     self.log('Hello from Neopolitan App') 
@@ -27,17 +34,23 @@ class Neopolitan(hass.Hass):
     # listen for ticker +/-
     self.set_state(entity_id='input_text.add_ticker', state='')
     self.set_state(entity_id='input_text.remove_ticker', state='')
-    self.listen_event(self.add_ticker_event, event='state_changed', entity_id='input_text.add_ticker')
-    self.listen_event(self.remove_ticker_event, event='state_changed', entity_id='input_text.remove_ticker')
-    self.listen_event(self.update_ticker_event, event='state_changed', entity_id='input_text.add_ticker')
-    self.listen_event(self.update_ticker_event, event='state_changed', entity_id='input_text.remove_ticker')
+    self.listen_event(self.add_ticker_event, \
+      event='state_changed', entity_id='input_text.add_ticker')
+    self.listen_event(self.remove_ticker_event, \
+      event='state_changed', entity_id='input_text.remove_ticker')
+    self.listen_event(self.update_ticker_event, \
+      event='state_changed', entity_id='input_text.add_ticker')
+    self.listen_event(self.update_ticker_event, \
+      event='state_changed', entity_id='input_text.remove_ticker')
     # publish default tickers as state
-    self.set_state(entity_id='sensor.default_tickers', state='Default Tickers Loaded', attributes={'tickers': get_default_tickers()})
+    self.set_state(entity_id='sensor.default_tickers', \
+      state='Default Tickers Loaded', attributes={'tickers': get_default_tickers()})
 
   def terminate(self):
     self.log('Goodbye from Neopolitan App')
     nb.close_display()
-    self.set_state(entity_id='sensor.default_tickers', state='No Default Tickers', attributes={'tickers': []})
+    self.set_state(entity_id='sensor.default_tickers', \
+      state='No Default Tickers', attributes={'tickers': []})
 
   def cb(self, func):
     return lambda event_name, data, kwargs: func()
