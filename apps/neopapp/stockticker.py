@@ -19,18 +19,59 @@ from neopolitan.const import HEIGHT, WIDTH
 from neopolitan.writing.data_transformation import dispatch_str_or_lst
 from log import get_logger
 
-TICKERS = ['DIS', 'AAL', 'BA',# 'VT',
-           'tsla', 'uber', 'wmt', 'tgt', 'orcl', 'sbux', 'aapl', 'pep',
-           'META', 'GOOG', ]
+TICKERS = ['DIS', 'AAL', 'BA', 'META', 'GOOG']
 UP = '↑'
 DOWN = '↓'
 MIN_LEN = WIDTH * HEIGHT * 5 # todo: make sure works when scroll fast
 TICKER_IDX = 4
+PATH = '/conf/apps/neopapp/'
+# PATH = './'
+
+def valid_ticker(sym):
+    """Tests whether the ticker is valid"""
+    return True
+
+def add_ticker(sym):
+    """Add a ticker symbol to the default list"""
+    if not valid_ticker(sym):
+        return
+    df = default_ticker_dataframe()
+    df = pd.concat([df, pd.DataFrame([[sym]], columns=['Symbol'])], ignore_index=True)
+    write_default_ticker_to_file(df)
+
+def remove_ticker(sym):
+    """Remove a ticker symbol from the default list"""
+    df = default_ticker_dataframe()
+    df = df[df['Symbol'] != sym]
+    write_default_ticker_to_file(df)
+
+def write_default_ticker_to_file(df):
+    """Update the default tickers file"""
+    df['Symbol'].to_csv(PATH + 'default_tickers.csv', index=False)
+
+def default_ticker_dataframe():
+    """Generate the pandas dataframe"""
+    try:
+        return pd.read_csv(PATH + 'default_tickers.csv')
+    except Exception as err:
+        print(err)
+        return None
+
+def get_default_tickers():
+    """Load default ticker symbols"""
+    try:
+        tick = default_ticker_dataframe()
+        return tick['Symbol'].to_list()
+        # return TICKERS # todo
+    # pylint: disable=bare-except
+    except:
+        get_logger().warning('Unable to load default tickers')
+        return TICKERS
 
 def get_snp_tickers():
     """Load S&P 500 ticker symbols"""
     try:
-        snp = pd.read_csv('/conf/apps/neopapp/s_and_p.csv')
+        snp = pd.read_csv(PATH + '/s_and_p.csv')
         thing = snp['Symbol'].to_list()
         shuffle(thing)
         return thing
@@ -42,7 +83,7 @@ def get_snp_tickers():
 def get_nasdaq_tickers():
     """Load NASDAQ 100 ticker symbols"""
     try:
-        snp = pd.read_csv('/conf/apps/neopapp/nasdaq_100.csv')
+        snp = pd.read_csv(PATH + 'nasdaq_100.csv')
         thing = snp['Symbol'].to_list()
         thing = [s.strip() for s in thing]
         shuffle(thing)
@@ -174,3 +215,11 @@ def is_connected_to_internet():
     except Exception as err:
         get_logger().warning('Error: %s', str(err))
     return False
+
+"""
+print(get_default_tickers())
+remove_ticker('GOOG')
+print(get_default_tickers())
+add_ticker('GOOG')
+print(get_default_tickers())
+"""
