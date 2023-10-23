@@ -86,7 +86,7 @@ def parse_day_data(day_obj):
     delta_swe = day_obj[DELTA_SWE]
     delta_snow = day_obj[DELTA_SNOW]
     temperature = day_obj[TEMPERATURE]
-    print('     Delta SWE:', delta_swe, 'New Snow:', delta_snow, 'Temp:', temperature)
+    # print('     Delta SWE:', delta_swe, 'New Snow:', delta_snow, 'Temp:', temperature)
 
 def parse_sntl_data(obj):
     station_name = obj['station_information']['name']
@@ -192,7 +192,7 @@ def top_x_snowfall(data, x, days=0):
 # ---
 
 # --- Tests
-
+"""
 data = aggregate_station_data()
 pretty_print(data[0])
 print(get_snowfall_24(data[0]))
@@ -203,5 +203,5 @@ print(get_air_temp(data[0]))
 print(len(passes_snow_threshold(data, past_24=0.1, past_72=0.1)))
 for station in passes_snow_threshold(data, past_24=0.1, past_72=0.1):
     parse_sntl_data(station)
-
+"""
 # ---
