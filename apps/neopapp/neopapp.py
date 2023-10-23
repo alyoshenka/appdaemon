@@ -121,12 +121,9 @@ class Neopolitan(hass.Hass):
     self.log('Closing Neopolitan Display')
     self.reset_scroll_speed()
     nb.close_display()
-
-  # ---
-  
+  # ---  
   def shuffle_tickers(self): 
     return self.get_state('input_boolean.shuffle_tickers') == 'on'
-
   # --- Display Stocks ---
   def display_stocks_default(self, event_name, data, kwargs):
     self.log('Displaying Default Tickers')
