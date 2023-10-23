@@ -12,11 +12,13 @@
 import hassapi as hass
 import neopolitan.nonblocking as nb
 from stockticker import \
-  default_tickers, snp_500, nasdaq_100, run as run_stocks, \
+  default_tickers, snp_500, nasdaq_100, \
   get_default_tickers, \
   add_ticker, remove_ticker
 
 class Neopolitan(hass.Hass):
+
+  # --- AppDaemon Setup ---
   def initialize(self):
     self.log('Hello from Neopolitan App') 
 
@@ -63,13 +65,9 @@ class Neopolitan(hass.Hass):
     self.log('Goodbye from Neopolitan App')
     nb.close_display()
     self.set_state(entity_id='sensor.default_tickers', \
-      state='No Default Tickers', attributes={'tickers': []})
-
-  def cb(self, func):
-    return lambda event_name, data, kwargs: func()
-  
+      state='No Default Tickers', attributes={'tickers': []}) 
+  # ---  
   # --- Text Updates ---
-
   def update_text(self, event_name, data, kwargs):
     self.log('Updating Text')
     try:
@@ -97,7 +95,6 @@ class Neopolitan(hass.Hass):
     DEFAULT_SCROLL_SPEED = 0.8
     self.set_state(entity_id='input_number.neopolitan_scroll_speed', state=DEFAULT_SCROLL_SPEED)
   # ---
-
   # --- Update Custom Tickers ---
   def add_ticker_event(self, event_name, data, kwargs):
     ticker = data['new_state']['state']
@@ -112,10 +109,8 @@ class Neopolitan(hass.Hass):
   def update_ticker_event(self, event_name, data, kwargs):
     self.log('Updating tickers')
     self.set_state(entity_id='sensor.default_tickers', state='Default Tickers Loaded', \
-                   attributes={'tickers': get_default_tickers()})
-  
+                   attributes={'tickers': get_default_tickers()}) 
   # ---
-
   # --- General Display Functions
   def open_display(self, event_name, data, kwargs):
     self.log('Opening Neopolitan Display')
@@ -150,6 +145,4 @@ class Neopolitan(hass.Hass):
     self.reset_scroll_speed()
     # This is so disgusting
     nb.open_display(lambda events: nasdaq_100(events, should_shuffle=self.shuffle_tickers())) 
-
   # ---
-  
