@@ -68,6 +68,8 @@ class Neopolitan(hass.Hass):
   def cb(self, func):
     return lambda event_name, data, kwargs: func()
   
+  # --- Text Updates ---
+
   def update_text(self, event_name, data, kwargs):
     self.log('Updating Text')
     try:
@@ -83,12 +85,14 @@ class Neopolitan(hass.Hass):
     try:
       spd = data['new_state']['state']
       spd = 1 - float(spd)
-      if spd < 0:
-        spd = 0
-      self.log('Scroll Speed: ' + spd)
+      if spd <= 0:
+        spd = 0.01
+      self.log('Scroll Speed: ' + str(spd))
       nb.update_display({'speed': spd})
     except Exception as err:
       self.log(err)
+
+    # ---
 
   def add_ticker_event(self, event_name, data, kwargs):
     ticker = data['new_state']['state']
