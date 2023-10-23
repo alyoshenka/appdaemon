@@ -128,14 +128,14 @@ def default_tickers(events, should_shuffle=False):
 
 def snp_500(events, should_shuffle=False):
     """Run with S&P 500 tickers"""
-    tickers = get_default_tickers()
+    tickers = get_snp_tickers()
     if should_shuffle:
         shuffle(tickers)
     run(events, tickers)
 
 def nasdaq_100(events, should_shuffle=False):
     """Run with NASDAQ100 tickers"""
-    tickers = get_default_tickers()
+    tickers = get_nasdaq_tickers()
     if should_shuffle:
         shuffle(tickers)
     run(events, tickers)

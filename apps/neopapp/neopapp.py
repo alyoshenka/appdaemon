@@ -24,16 +24,26 @@ class Neopolitan(hass.Hass):
     no_args_funcs = [
       (nb.open_display,  'input_button.open_neopolitan'),
       (nb.close_display, 'input_button.close_neopolitan'),
-      (lambda : nb.open_display(default_tickers), 'input_button.neopstocks_default'),
-      (lambda : nb.open_display(nasdaq_100), 'input_button.neopstocks_nasdaq'),
-      (lambda : nb.open_display(snp_500), 'input_button.neopstocks_snp')
+      # (lambda : nb.open_display(default_tickers), 'input_button.neopstocks_default'),
+      # (lambda : nb.open_display(nasdaq_100), 'input_button.neopstocks_nasdaq'),
+      # (lambda : nb.open_display(snp_500), 'input_button.neopstocks_snp')
     ]
     for listener in no_args_funcs:
       self.listen_event(self.cb(func=listener[0]), event='state_changed', entity_id=listener[1])
 
+    # --- Ticker Display Functions ---
+    self.listen_event(self.display_stocks_default, \
+      event='state_changed', entity_id='input_button.neopstocks_default')
+    self.listen_event(self.display_stocks_snp, \
+      event='state_changed', entity_id='input_button.neopstocks_snp')
+    self.listen_event(self.display_stocks_nasdaq, \
+      event='state_changed', entity_id='input_button.neopstocks_nasdaq')
+    # ---
+    # --- Text Updates ---
     self.listen_event(self.update_text, event='state_changed', entity_id='input_text.update_neopolitan_text')
     self.listen_event(self.update_scroll_speed, event='state_changed', entity_id='input_number.neopolitan_scroll_speed')
-    # listen for ticker +/-
+    # ---
+    # --- Listen For Ticker +/- ---
     self.set_state(entity_id='input_text.add_ticker', state='')
     self.set_state(entity_id='input_text.remove_ticker', state='')
     self.listen_event(self.add_ticker_event, \
@@ -44,12 +54,10 @@ class Neopolitan(hass.Hass):
       event='state_changed', entity_id='input_text.add_ticker')
     self.listen_event(self.update_ticker_event, \
       event='state_changed', entity_id='input_text.remove_ticker')
+    # ---
     # publish default tickers as state
     self.set_state(entity_id='sensor.default_tickers', \
       state='Default Tickers Loaded', attributes={'tickers': get_default_tickers()})
-
-    # listen for toggle
-    self.listen_event(self.listen_toggle, event='state_changed', entity_id='input_boolean.shuffle_tickers')
 
   def terminate(self):
     self.log('Goodbye from Neopolitan App')
@@ -61,25 +69,26 @@ class Neopolitan(hass.Hass):
     return lambda event_name, data, kwargs: func()
   
   def update_text(self, event_name, data, kwargs):
+    self.log('Updating Text')
     try:
       msg = data['new_state']['state']
       nb.open_display()
+      self.log('Text: ' + msg)
       nb.update_display({'say': msg})
     except Exception as err:
       self.log(err)
 
   def update_scroll_speed(self, event_name, data, kwargs):
+    self.log('Updating Scroll Speed')
     try:
       spd = data['new_state']['state']
       spd = 1 - float(spd)
       if spd < 0:
         spd = 0
+      self.log('Scroll Speed: ' + spd)
       nb.update_display({'speed': spd})
     except Exception as err:
       self.log(err)
-
-  def stocks_default(self, event_name, data, kwargs):
-    nb.open_display(default_tickers)
 
   def add_ticker_event(self, event_name, data, kwargs):
     ticker = data['new_state']['state']
@@ -97,15 +106,19 @@ class Neopolitan(hass.Hass):
   
   def shuffle_tickers(self): 
     return self.get_state('input_boolean.shuffle_tickers') == 'on'
-  
-  def listen_toggle(self, event_name, data, kwargs):
-    self.log(self.shuffle_tickers())
-    if self.shuffle_tickers():
-      nb.open_display( \
-        lambda events: \
-          default_tickers(events, should_shuffle=self.shuffle_tickers())) # This is so disgusting
-    else:
-      nb.close_display()
 
-  def display_stocks(self, ticker_func):
-    pass
+  def display_stocks_default(self, event_name, data, kwargs):
+    self.log('Displaying Default Tickers')
+    # This is so disgusting
+    nb.open_display(lambda events: default_tickers(events, should_shuffle=self.shuffle_tickers())) 
+
+  def display_stocks_snp(self, event_name, data, kwargs):
+    self.log('Displaying SNP Tickers')
+    # This is so disgusting
+    nb.open_display(lambda events: snp_500(events, should_shuffle=self.shuffle_tickers())) 
+
+  def display_stocks_nasdaq(self, event_name, data, kwargs):
+    self.log('Displaying NASDAQ Tickers')
+    # This is so disgusting
+    nb.open_display(lambda events: nasdaq_100(events, should_shuffle=self.shuffle_tickers())) 
+  
