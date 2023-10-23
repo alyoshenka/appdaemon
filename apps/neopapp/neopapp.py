@@ -7,6 +7,8 @@
 # pylint: disable=bad-indentation
 # pylint: disable=missing-function-docstring
 
+# todo: look into dependencies for stockticker.py so it will reload on save??
+
 import hassapi as hass
 import neopolitan.nonblocking as nb
 from stockticker import \
@@ -99,6 +101,11 @@ class Neopolitan(hass.Hass):
   def listen_toggle(self, event_name, data, kwargs):
     self.log(self.shuffle_tickers())
     if self.shuffle_tickers():
-      nb.open_display(default_tickers)
+      nb.open_display( \
+        lambda events: \
+          default_tickers(events, should_shuffle=self.shuffle_tickers())) # This is so disgusting
     else:
       nb.close_display()
+
+  def display_stocks(self, ticker_func):
+    pass

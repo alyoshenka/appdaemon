@@ -119,17 +119,26 @@ def monitor_message_length(neop, tickers):
                 new_data = dispatch_str_or_lst([(' - No internet connection -', RED)])
                 neop.board.set_data(neop.board.data + new_data)
 
-def default_tickers(events):
+def default_tickers(events, should_shuffle=False):
     """Run with the default tickers"""
-    run(events, TICKERS)
+    tickers = get_default_tickers()
+    if should_shuffle:
+        shuffle(tickers)
+    run(events, tickers)
 
-def snp_500(events):
+def snp_500(events, should_shuffle=False):
     """Run with S&P 500 tickers"""
-    run(events, get_snp_tickers())
+    tickers = get_default_tickers()
+    if should_shuffle:
+        shuffle(tickers)
+    run(events, tickers)
 
-def nasdaq_100(events):
+def nasdaq_100(events, should_shuffle=False):
     """Run with NASDAQ100 tickers"""
-    run(events, get_nasdaq_tickers())
+    tickers = get_default_tickers()
+    if should_shuffle:
+        shuffle(tickers)
+    run(events, tickers)
 
 # pylint: disable=dangerous-default-value
 def run(events, tickers):
