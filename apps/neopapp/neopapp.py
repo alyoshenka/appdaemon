@@ -18,18 +18,7 @@ from stockticker import \
 
 class Neopolitan(hass.Hass):
   def initialize(self):
-
     self.log('Hello from Neopolitan App') 
-
-    no_args_funcs = [
-      # (nb.open_display,  'input_button.open_neopolitan'),
-      # (nb.close_display, 'input_button.close_neopolitan'),
-      # (lambda : nb.open_display(default_tickers), 'input_button.neopstocks_default'),
-      # (lambda : nb.open_display(nasdaq_100), 'input_button.neopstocks_nasdaq'),
-      # (lambda : nb.open_display(snp_500), 'input_button.neopstocks_snp')
-    ]
-    for listener in no_args_funcs:
-      self.listen_event(self.cb(func=listener[0]), event='state_changed', entity_id=listener[1])
 
     # --- Initialize State ---
     self.reset_scroll_speed()
