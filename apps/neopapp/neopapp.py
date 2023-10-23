@@ -10,7 +10,7 @@
 import hassapi as hass
 import neopolitan.nonblocking as nb
 from stockticker import \
-  default_tickers, snp_500, nasdaq_100, \
+  default_tickers, snp_500, nasdaq_100, run as run_stocks, \
   get_default_tickers, \
   add_ticker, remove_ticker
 
@@ -45,6 +45,9 @@ class Neopolitan(hass.Hass):
     # publish default tickers as state
     self.set_state(entity_id='sensor.default_tickers', \
       state='Default Tickers Loaded', attributes={'tickers': get_default_tickers()})
+
+    # listen for toggle
+    self.listen_event(self.listen_toggle, event='state_changed', entity_id='input_boolean.shuffle_tickers')
 
   def terminate(self):
     self.log('Goodbye from Neopolitan App')
@@ -90,3 +93,12 @@ class Neopolitan(hass.Hass):
     self.log('Updating tickers')
     self.set_state(entity_id='sensor.default_tickers', state='Default Tickers Loaded', attributes={'tickers': get_default_tickers()})
   
+  def shuffle_tickers(self): 
+    return self.get_state('input_boolean.shuffle_tickers') == 'on'
+  
+  def listen_toggle(self, event_name, data, kwargs):
+    self.log(self.shuffle_tickers())
+    if self.shuffle_tickers():
+      nb.open_display(default_tickers)
+    else:
+      nb.close_display()
