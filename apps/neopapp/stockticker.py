@@ -113,7 +113,9 @@ def monitor_message_length(neop, tickers):
                     neop.board.set_data(neop.board.data + new_data)
                     get_logger().info('Got new ticker data for: %s', next_sym)
                 except Exception as err:
-                    get_logger().warning('Error getting ticker data: %s', str(err))
+                    get_logger().warning('Error getting ticker data for %s: %s', next_sym, str(err))
+                    new_data = dispatch_str_or_lst('Unable to get data for: ' + next_sym + '  ')
+                    neop.board.set_data(neop.board.data + new_data)
             else:
                 # ToDo: this is kinda bad code
                 new_data = dispatch_str_or_lst([(' - No internet connection -', RED)])
@@ -178,7 +180,7 @@ def construct_message(tickers):
         return msg
     except Exception as err:
         get_logger().warning('Error initializing ticker data for %s', str(err))
-        return [('Error getting tickers', RED)]
+        return 'Error getting tickers  '
 
 def get_ticker_data(sym):
     """"Query and return formatted data from a ticker symbol"""
