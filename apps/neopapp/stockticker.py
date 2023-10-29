@@ -29,11 +29,12 @@ PATH = '/conf/apps/neopapp/'
 
 def valid_ticker(sym):
     """Tests whether the ticker is valid"""
-    return True
+    return len(sym) > 0
 
 def add_ticker(sym):
     """Add a ticker symbol to the default list"""
     if not valid_ticker(sym):
+        print('Invalid ticker: ' + sym)
         return
     df = default_ticker_dataframe()
     df = pd.concat([df, pd.DataFrame([[sym]], columns=['Symbol'])], ignore_index=True)
@@ -113,7 +114,7 @@ def monitor_message_length(neop, tickers):
                     neop.board.set_data(neop.board.data + new_data)
                     get_logger().info('Got new ticker data for: %s', next_sym)
                 except Exception as err:
-                    get_logger().warning('Error getting ticker data for %s: %s', next_sym, str(err))
+                    get_logger().warning('Error getting ticker data for %s', next_sym) # error msg too long
                     new_data = dispatch_str_or_lst('Unable to get data for: ' + next_sym + '  ')
                     neop.board.set_data(neop.board.data + new_data)
             else:
