@@ -191,11 +191,17 @@ def get_ticker_data(sym):
     except Exception as err:
         print("ERROR", err)
         return None
+    """
     info = data.info
     close = info['previousClose']
     cur = info['currentPrice']
     name = info['shortName']
     symbol = info['symbol']
+    """
+    close = data.fast_info['previousClose']
+    cur = data.fast_info['lastPrice']
+    name = None
+    symbol = (str)(sym).upper()
     delta = cur - close
     obj = {
         "symbol": symbol,
