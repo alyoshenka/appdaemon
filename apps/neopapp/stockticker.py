@@ -12,6 +12,8 @@ from random import shuffle
 import requests
 import yfinance as yf
 import pandas as pd
+import datetime
+import pytz
 from neopolitan.board_functions.colors import GREEN, RED
 from neopolitan.board_functions.board_data import default_board_data
 from neopolitan.naples import Neopolitan
@@ -27,9 +29,44 @@ TICKER_IDX = 4
 PATH = '/conf/apps/neopapp/'
 # PATH = './'
 
+def get_three_day_history(ticker):
+    return ticker.history(period='3d')
+
+def get_last_close(ticker):
+    history = get_three_day_history(ticker)
+    lastDay = history.iloc[1] \
+        if currently_trading(to_NY_time(datetime.datetime.now())) \
+        else history.iloc[0]
+    return round(lastDay['Close'], 2)
+
+def currently_trading(nyc_time):
+    if nyc_time.weekday() > 4: # Not on weekends
+        return False
+    if nyc_time.hour >= 12+4: # Not after 4pm
+        return False
+    if nyc_time.hour < 9: # Not before 9am
+        return False
+    if nyc_time.hour == 9 and nyc_time.minute < 30: # Not before 9:30am
+        return False
+    return True
+
+def to_NY_time(local_time):
+    return local_time.astimezone(pytz.timezone('America/New_York'))
+
+def get_current_price(ticker):
+    return round(ticker.fast_info['lastPrice'], 2)
+
+def get_price_delta(close_price, current_price):
+    return round(current_price - close_price, 2)
+
+def get_percent_delta(close_price, current_price):
+    return round(\
+    get_price_delta(close_price=close_price, current_price=current_price) \
+    / close_price * 100, 2)
+
 def valid_ticker(sym):
     """Tests whether the ticker is valid"""
-    return len(sym) > 0
+    return len(sym) > 0 # todo
 
 def add_ticker(sym):
     """Add a ticker symbol to the default list"""
@@ -186,28 +223,22 @@ def construct_message(tickers):
 def get_ticker_data(sym):
     """"Query and return formatted data from a ticker symbol"""
     try:
-        data = yf.Ticker(str(sym))
+        ticker = yf.Ticker(str(sym))
     # pylint: disable=broad-except
     except Exception as err:
         print("ERROR", err)
         return None
-    """
-    info = data.info
-    close = info['previousClose']
-    cur = info['currentPrice']
-    name = info['shortName']
-    symbol = info['symbol']
-    """
-    close = data.fast_info['previousClose']
-    cur = data.fast_info['lastPrice']
+    close = get_last_close(ticker)
+    cur = get_current_price(ticker)
     name = None
     symbol = (str)(sym).upper()
-    delta = cur - close
+    delta = get_price_delta(close_price=close, current_price=cur)
+    pct = get_percent_delta(close_price=close, current_price=cur)
     obj = {
         "symbol": symbol,
         "name": name,
-        "dollarDelta": round(delta, 2),
-        "percentDelta": round(delta/close*100, 2),
+        "dollarDelta": delta,
+        "percentDelta": pct,
         "up?": delta > 0
     }
     return obj
