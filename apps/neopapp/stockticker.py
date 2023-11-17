@@ -14,7 +14,7 @@ import yfinance as yf
 import pandas as pd
 import datetime
 import pytz
-from neopolitan.board_functions.colors import GREEN, RED
+from neopolitan.board_functions.colors import GREEN, RED, WHITE
 from neopolitan.board_functions.board_data import default_board_data
 from neopolitan.naples import Neopolitan
 from neopolitan.const import HEIGHT, WIDTH
@@ -25,7 +25,7 @@ TICKERS = ['DIS', 'AAL', 'BA', 'META', 'GOOG']
 UP = '↑'
 DOWN = '↓'
 MIN_LEN = WIDTH * HEIGHT * 5 # todo: make sure works when scroll fast
-TICKER_IDX = 4
+TICKER_IDX = 0
 PATH = '/conf/apps/neopapp/'
 # PATH = './'
 
@@ -34,9 +34,15 @@ def get_three_day_history(ticker):
 
 def get_last_close(ticker):
     history = get_three_day_history(ticker)
+    get_logger().info('Ticker: ' + str(ticker.ticker))
+    get_logger().info('Trading: ' + str(currently_trading(to_NY_time(datetime.datetime.now()))))
+    # outside of hours on a weekday:
+    lastDay = history.iloc[1]
+    """
     lastDay = history.iloc[1] \
         if currently_trading(to_NY_time(datetime.datetime.now())) \
         else history.iloc[0]
+    """
     return round(lastDay['Close'], 2)
 
 def currently_trading(nyc_time):
@@ -71,8 +77,9 @@ def valid_ticker(sym):
 def add_ticker(sym):
     """Add a ticker symbol to the default list"""
     if not valid_ticker(sym):
-        print('Invalid ticker: ' + sym)
+        get_logger.warning('Invalid ticker: ' + sym)
         return
+    sym = str(sym).strip()
     df = default_ticker_dataframe()
     df = pd.concat([df, pd.DataFrame([[sym]], columns=['Symbol'])], ignore_index=True)
     write_default_ticker_to_file(df)
@@ -111,7 +118,7 @@ def get_snp_tickers():
     try:
         snp = pd.read_csv(PATH + '/s_and_p.csv')
         thing = snp['Symbol'].to_list()
-        shuffle(thing)
+        thing = [s.strip() for s in thing]
         return thing
     # pylint: disable=bare-except
     except:
@@ -124,7 +131,6 @@ def get_nasdaq_tickers():
         snp = pd.read_csv(PATH + 'nasdaq_100.csv')
         thing = snp['Symbol'].to_list()
         thing = [s.strip() for s in thing]
-        shuffle(thing)
         return thing
     # pylint: disable=bare-except
     except:
@@ -152,7 +158,7 @@ def monitor_message_length(neop, tickers):
                     get_logger().info('Got new ticker data for: %s', next_sym)
                 except Exception as err:
                     get_logger().warning('Error getting ticker data for %s', next_sym) # error msg too long
-                    new_data = dispatch_str_or_lst('Unable to get data for: ' + next_sym + '  ')
+                    new_data = dispatch_str_or_lst('  Unable to get data for: ' + next_sym)
                     neop.board.set_data(neop.board.data + new_data)
             else:
                 # ToDo: this is kinda bad code
@@ -206,27 +212,29 @@ def run(events, tickers):
 
 def construct_message(tickers):
     """Constructs the data to send to neopolitan to display stocks"""
+    msg = [('           Currently trading: ' \
+    + ('Yes' if currently_trading(to_NY_time(datetime.datetime.now())) else 'No'), \
+    WHITE)]
+    # could just take this all out now with initial message
     try:
         all_ticker_data = [get_ticker_data(sym) for sym in tickers[0:TICKER_IDX]]
-        msg = []
         for tick in all_ticker_data:
             if tick is not None:
                 msg.append(('  ' + ticker_obj_to_string(tick), GREEN if tick['up?'] else RED))
-            else:
-                msg.append(('   Error', RED))
-                print('Error:', tick)
-        return msg
     except Exception as err:
         get_logger().warning('Error initializing ticker data for %s', str(err))
-        return 'Error getting tickers  '
+        msg.append(('Error getting tickers  ', RED)) 
+    return msg
 
 def get_ticker_data(sym):
     """"Query and return formatted data from a ticker symbol"""
     try:
-        ticker = yf.Ticker(str(sym))
+        ticker = yf.Ticker(str(sym))           
+        if ticker.history().size == 0: # check for delisted
+            return None
     # pylint: disable=broad-except
     except Exception as err:
-        print("ERROR", err)
+        get_logger().error("ERROR: " + str(err))
         return None
     close = get_last_close(ticker)
     cur = get_current_price(ticker)
@@ -237,6 +245,7 @@ def get_ticker_data(sym):
     obj = {
         "symbol": symbol,
         "name": name,
+        "currentPrice": cur,
         "dollarDelta": delta,
         "percentDelta": pct,
         "up?": delta > 0
@@ -249,7 +258,8 @@ def ticker_obj_to_string(obj):
     # pylint: disable=consider-using-f-string
     dollar = '{0:.2f}'.format(obj["dollarDelta"])
     percent = '{0:.2f}'.format(obj["percentDelta"])
-    return f'{obj["symbol"]} {arrow} ${dollar} {percent}%'
+    price = '{0:.2f}'.format(obj["currentPrice"])
+    return f'{obj["symbol"]}: ${price} {arrow} ${dollar} {percent}%'
 
 # ToDo: this should go somewhere else
 def is_connected_to_internet():
@@ -265,10 +275,12 @@ def is_connected_to_internet():
         get_logger().warning('Error: %s', str(err))
     return False
 
+
 """
-print(get_default_tickers())
-remove_ticker('GOOG')
-print(get_default_tickers())
-add_ticker('GOOG')
-print(get_default_tickers())
+ticker = yf.Ticker('tsla')
+print(get_current_price(ticker), get_last_close(ticker))
+print(get_three_day_history(ticker))
+print(get_three_day_history(ticker).iloc[0].name)
+print(get_three_day_history(ticker).iloc[1].name)
+print(get_three_day_history(ticker).iloc[2].name)
 """
