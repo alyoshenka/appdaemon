@@ -6,3 +6,7 @@ neop:
 snow_reports:
   module: snowreport
   class: SnowReporter
+
+temp_sensor:
+  module: tempsensor
+  class: TempSensor
