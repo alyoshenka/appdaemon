@@ -3,14 +3,69 @@ neop:
   module: neopapp
   class: Neopolitan
 
-snow_reports:
-  module: snowreport
-  class: SnowReporter
+# snow_reports:
+  # module: snowreport
+  # class: SnowReporter
 
-test_snotel:
+snotel_929:
   module: station
   class: SnotelStation
   station_id: 929
+
+snotel_365:
+  module: station
+  class: SnotelStation
+  station_id: 365
+
+snotel_725:
+  module: station
+  class: SnotelStation
+  station_id: 725
+
+snotel_700:
+  module: station
+  class: SnotelStation
+  station_id: 700
+
+snotel_578:
+  module: station
+  class: SnotelStation
+  station_id: 578
+
+snotel_754:
+  module: station
+  class: SnotelStation
+  station_id: 754
+
+snotel_590:
+  module: station
+  class: SnotelStation
+  station_id: 590
+
+snotel_385:
+  module: station
+  class: SnotelStation
+  station_id: 385
+
+snotel_328:
+  module: station
+  class: SnotelStation
+  station_id: 328
+
+snotel_670:
+  module: station
+  class: SnotelStation
+  station_id: 670
+
+snotel_862:
+  module: station
+  class: SnotelStation
+  station_id: 862
+
+snotel_480:
+  module: station
+  class: SnotelStation
+  station_id: 480
 
 
 #temp_sensor:
