@@ -217,9 +217,13 @@ def top_x_snowfall(data, x, days=0):
 # ---
 
 # --- Tests
-"""
+
+print('Running Tests')
+
 data = aggregate_station_data()
+print('Station[0]:')
 pretty_print(data[0])
+print('---')
 print(get_snowfall_24(data[0]))
 print(get_air_temp(data[0]))
 
@@ -229,5 +233,5 @@ print(len(passes_snow_threshold(data, past_24=0.1, past_72=0.1)))
 for station in passes_snow_threshold(data, past_24=0.1, past_72=0.1):
     parse_sntl_data(station)
 print(round(1.25, 1))
-"""
+
 # ---
