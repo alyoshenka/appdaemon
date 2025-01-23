@@ -1,1 +1,3 @@
 docker run --name=appdaemon -d -p 5050:5050 --restart=unless-stopped -e TZ=America/Boise -e HA_URL=secrets.ha_url -e TOKEN=secrets.token -e DASH_URL="http://$HOSTNAME:5050" -v secrets.appdaemon_dir --device /dev/gpiomem --device /dev/spidev0.0 acockburn/appdaemon:latest
+
+docker run --name=appdaemon --privileged -d -p 5050:5050 --restart=unless-stopped -e TZ=America/Boise -e HA_URL=secrets.http://192.168.0.159:8123 -e TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI3MWEwMmY1ZmZiZDE0OTg0YTJjNjk5ZGNkMjcwODg3ZCIsImlhdCI6MTY5NDIxMjc2NSwiZXhwIjoyMDA5NTcyNzY1fQ.OAGZfnggTLsb4-WgVE95i55kZVLJAlqYz3k7vhwRpL0 -e DASH_URL="http://$HOSTNAME:5050" -v /home/jay/smarthome/appdaemon:/conf --device /dev/gpiomem --device /dev/spidev0.0 acockburn/appdaemon:latest

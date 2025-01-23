@@ -17,7 +17,7 @@ from snowdata import \
 from stations import get_station_ids, add_station, remove_station
   
 
-NOTIFY_ME = 'notify/mobile_app_pixel_3a'
+NOTIFY_ME = 'notify/mobile_app_pixel_8a'
 SNOTEL1 = 'https://wcc.sc.egov.usda.gov/reportGenerator/view/customSingleStationReport/hourly/start_of_period/'
 SNOTEL2 = '|id=%22%22|name/-167,0/WTEQ::value,SNWD::value,PREC::value,TOBS::value?fitToScreen=false&sortBy=0:-1'
 

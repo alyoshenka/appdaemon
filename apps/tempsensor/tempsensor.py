@@ -70,8 +70,6 @@ class TempSensor(hass.Hass):
 
         if not has_update_time() or not has_updated_within_interval():
             notify_of_lost_update()
-            
-
 
     def get_temp(self):
         try:
