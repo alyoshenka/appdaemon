@@ -7,6 +7,11 @@ snow_reports:
   module: snowreport
   class: SnowReporter
 
+test_snotel:
+  module: station
+  class: SnotelStation
+  station_id: 929
+
 
 #temp_sensor:
   #module: tempsensor
