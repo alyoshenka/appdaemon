@@ -5,6 +5,10 @@ import datetime
 from data_request import *
 from data_manipulation import *
 
+DEFAULT_THRESH_24 = 3
+DEFAULT_THRESH_72 = 5
+NOTIFY_ME = 'notify/mobile_app_pixel_8a'
+
 
 class SnotelStation(hass.Hass):
 
@@ -38,10 +42,12 @@ class SnotelStation(hass.Hass):
         }
 
     def initialize(self):
-        self.log('Snotel Station initialized')
         station_id = str(self.args['station_id'])
-        self.log('Station id: ' + station_id)
+        self.log('Snotel Station ' + station_id + ' initialized')
         self.set_state(entity_id='sensor.snotel_station_' + station_id, state=station_id, attributes=self.default_data())
+
+        self.listen_event(self.update_requested, event='state_changed', entity_id='input_button.generate_snow_report')
+
         self.update()
 
     def terminate(self):
@@ -90,8 +96,40 @@ class SnotelStation(hass.Hass):
 
             self.set_state(entity_id='sensor.snotel_station_' + str(self.args['station_id']), attributes=new_data)
 
-            self.log('Done updating Station ' + str(self.args['station_id']))
+            # Updates
+            if delta_depth(one_day) > self.get_24_threshold() or delta_depth(three_day) > self.get_72_threshold():
+                self.notify_phone_of_exciting_snow_report(info['site'])
 
+            self.notify_phone_of_new_snow_report()
+
+            self.log('Done updating Station ' + str(self.args['station_id']))
 
         except Exception as err:
             self.log('Error updating ' + str(self.args['station_id']) + ': ' + str(err))
+
+    def update_requested(self, event_name, data, kwargs):
+        self.log('Request to update station ' + str(self.args['station_id']))
+        self.update()
+
+    def notify_phone_of_new_snow_report(self):
+        """Notify that new report has been generated, and link to HA dashboard"""
+        self.call_service(NOTIFY_ME, message='New Snow Report', data={"clickAction": "/lovelace/snowsports", "notification_icon": "mdi:snowflake"})
+
+    def notify_phone_of_exciting_snow_report(self, station_name):
+        """Notify that snow total has exceeded threshold, and link to snotel site"""
+        link = make_station_url(self.args['station_id'])
+        self.log('Notifying mobile of new snow at ' + station_name)
+        self.call_service(NOTIFY_ME, message=station_name + ' has new snow', data={"clickAction": link, "notification_icon": "mdi:exit-run"})
+
+    def get_24_threshold(self):
+        try:
+            return float(self.get_state('input_number.24_hour_snow_threshold'))
+        except:
+            return DEFAULT_THRESH_24
+    
+
+    def get_72_threshold(self):
+        try:
+            return float(self.get_state('input_number.72_hour_snow_threshold'))
+        except:
+            return DEFAULT_THRESH_72
