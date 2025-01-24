@@ -100,7 +100,8 @@ class SnotelStation(hass.Hass):
             if delta_depth(one_day) > self.get_24_threshold() or delta_depth(three_day) > self.get_72_threshold():
                 self.notify_phone_of_exciting_snow_report(info['site'])
 
-            self.notify_phone_of_new_snow_report()
+            # Need to do this just once
+            # self.notify_phone_of_new_snow_report()
 
             self.log('Done updating Station ' + str(self.args['station_id']))
 
