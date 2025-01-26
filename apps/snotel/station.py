@@ -25,19 +25,19 @@ class SnotelStation(hass.Hass):
                 'max_temp': '-',
                 'min_temp': '-',
                 'delta_swe': '-',
-                'delta_depth': '-',
+                'delta_depth': '-'
             },
             '72_hour': {
                 'max_temp': '-',
                 'min_temp': '-',
                 'delta_swe': '-',
-                'delta_depth': '-',
+                'delta_depth': '-'
             },
             '168_hour': {
                 'max_temp': '-',
                 'min_temp': '-',
                 'delta_swe': '-',
-                'delta_depth': '-',
+                'delta_depth': '-'
             }
         }
 
@@ -61,6 +61,7 @@ class SnotelStation(hass.Hass):
             url = make_station_url(self.args['station_id'])
             res = get_from_url(url)
             soup = make_soup(res.text)
+            self.log('soup initialized: ' + str(soup is not None))
             self.log('Updating data for ' + get_report_info(soup)['site'])
 
             info = get_report_info(soup)
@@ -72,7 +73,7 @@ class SnotelStation(hass.Hass):
             new_data['station_name'] = info['site']
             new_data['station_info'] = info['info']
 
-            new_data['last_updated'] = datetime.datetime.now()
+            new_data['last_updated'] = str(datetime.datetime.now())
             new_data['temperature'] = get_temp(df)
             new_data['snow_depth'] = get_depth(df)
 
@@ -134,3 +135,4 @@ class SnotelStation(hass.Hass):
             return float(self.get_state('input_number.72_hour_snow_threshold'))
         except:
             return DEFAULT_THRESH_72
+
